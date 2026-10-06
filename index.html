@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Beautiful World</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#050505;font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+body{display:grid;place-items:center}.app{position:relative;width:min(100vw,56.25vh);height:min(100vh,177.7778vw);overflow:hidden;background:#111;box-shadow:0 0 60px #000}
+.slide{position:absolute;inset:0;opacity:0;transform:scale(1.04);transition:opacity .7s ease,transform 6s ease;pointer-events:none}.slide.active{opacity:1;transform:scale(1);pointer-events:auto}
+.slide img{width:100%;height:100%;object-fit:cover}.slide:after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.3),transparent 35%,rgba(0,0,0,.85))}
+.info{position:absolute;z-index:3;left:8%;right:8%;bottom:12%;color:#fff;text-shadow:0 2px 18px #000}.eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.85;margin-bottom:8px}.place{font-size:clamp(28px,7vw,46px);font-weight:800;line-height:1.02}.country{font-size:15px;margin-top:9px;opacity:.9}
+.brand,.counter{position:absolute;z-index:4;top:4%;color:#fff;font-size:12px;letter-spacing:2px;text-shadow:0 2px 12px #000}.brand{left:7%;font-weight:700}.counter{right:7%}
+button{position:absolute;z-index:5;top:50%;transform:translateY(-50%);width:42px;height:42px;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:rgba(0,0,0,.25);backdrop-filter:blur(8px);color:#fff;font-size:26px;cursor:pointer}.prev{left:4%}.next{right:4%}
+.dots{position:absolute;z-index:5;bottom:5%;left:50%;transform:translateX(-50%);display:flex;gap:6px}.dot{width:6px;height:6px;border-radius:10px;background:rgba(255,255,255,.45);cursor:pointer}.dot.active{width:20px;background:#fff}
+@media(min-width:700px){.app{border-radius:20px}}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="brand">BEAUTIFUL WORLD</div><div class="counter" id="counter">01 / 12</div>
+<div id="slides"></div><button class="prev" aria-label="Previous">‹</button><button class="next" aria-label="Next">›</button><div class="dots"></div>
+</main>
+<script>
+const places=[
+["Milford Sound","New Zealand","https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=90"],
+["Santorini","Greece","https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=900&q=90"],
+["Swiss Alps","Switzerland","https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=900&q=90"],
+["Bora Bora","French Polynesia","https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=90"],
+["Banff National Park","Canada","https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=90"],
+["Petra","Jordan","https://images.unsplash.com/photo-1548786811-dd6e453ccca7?auto=format&fit=crop&w=900&q=90"],
+["Amalfi Coast","Italy","https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=900&q=90"],
+["Bali","Indonesia","https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=90"],
+["Iceland","Iceland","https://images.unsplash.com/photo-1520637836862-4d197d17c46a?auto=format&fit=crop&w=900&q=90"],
+["Machu Picchu","Peru","https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=900&q=90"],
+["Victoria Falls","Zimbabwe / Zambia","https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=900&q=90"],
+["Dolomites","Italy","https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=90"]
+];
+const root=document.querySelector("#slides"),dots=document.querySelector(".dots");
+places.forEach((p,n)=>{root.insertAdjacentHTML("beforeend",'<section class="slide '+(n===0?"active":"")+'"><img src="'+p[2]+'" alt="'+p[0]+', '+p[1]+'"><div class="info"><div class="eyebrow">Destination '+String(n+1).padStart(2,"0")+'</div><div class="place">'+p[0]+'</div><div class="country">📍 '+p[1]+'</div></div></section>');dots.insertAdjacentHTML("beforeend",'<span class="dot '+(n===0?"active":"")+'"></span>')});
+const slides=[...document.querySelectorAll(".slide")],ds=[...document.querySelectorAll(".dot")],counter=document.querySelector("#counter");let i=0,timer;
+function go(n){i=(n+slides.length)%slides.length;slides.forEach((s,k)=>s.classList.toggle("active",k===i));ds.forEach((d,k)=>d.classList.toggle("active",k===i));counter.textContent=String(i+1).padStart(2,"0")+" / "+slides.length;clearInterval(timer);timer=setInterval(()=>go(i+1),4500)}
+document.querySelector(".next").onclick=()=>go(i+1);document.querySelector(".prev").onclick=()=>go(i-1);ds.forEach((d,n)=>d.onclick=()=>go(n));
+let sx=0,sy=0;document.querySelector(".app").addEventListener("touchstart",e=>{sx=e.changedTouches[0].clientX;sy=e.changedTouches[0].clientY},{passive:true});
+document.querySelector(".app").addEventListener("touchend",e=>{let dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))go(i+(dx<0?1:-1))},{passive:true});
+document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")go(i+1);if(e.key==="ArrowLeft")go(i-1)});timer=setInterval(()=>go(i+1),4500);
+</script>
+</body>
+</html>
